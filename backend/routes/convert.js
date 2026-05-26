@@ -1,0 +1,54 @@
+const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const sharp = require('sharp');
+const path = require('path');
+const fs = require('fs');
+const archiver = require('archiver');
+
+const upload = multer({ dest: 'uploads/' });
+
+router.post('/', upload.array('images', 10), async (req, res) => {
+  try {
+    const { toFormat } = req.body; // e.g., 'png', 'jpeg', 'webp', 'gif', 'bmp', 'tiff'
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded' });
+    }
+    
+    if (req.files.length === 1) {
+      // Single file conversion
+      const file = req.files[0];
+      const outputPath = path.join(__dirname, '../output', `${file.filename}.${toFormat}`);
+      
+      let transform = sharp(file.path);
+      // specific format configurations can be added here
+      await transform.toFormat(toFormat).toFile(outputPath);
+      
+      return res.download(outputPath, `converted.${toFormat}`);
+    } else {
+      // Multiple files - return ZIP
+      const zipPath = path.join(__dirname, '../output', `${Date.now()}.zip`);
+      const output = fs.createWriteStream(zipPath);
+      const archive = archiver('zip', { zlib: { level: 9 } });
+      
+      output.on('close', () => {
+        res.download(zipPath, 'converted_images.zip');
+      });
+      
+      archive.pipe(output);
+      
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const processedBuffer = await sharp(file.path).toFormat(toFormat).toBuffer();
+        archive.append(processedBuffer, { name: `image_${i + 1}.${toFormat}` });
+      }
+      
+      archive.finalize();
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Conversion failed' });
+  }
+});
+
+module.exports = router;
