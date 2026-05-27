@@ -36,6 +36,7 @@ const ToolPage = () => {
   const [memeBottom, setMemeBottom] = useState('BOTTOM TEXT');
   const [filterType, setFilterType] = useState('grayscale');
   const [stegoMessage, setStegoMessage] = useState('Secret Message');
+  const [customConvertFormat, setCustomConvertFormat] = useState('png');
 
   const [ocrText, setOcrText] = useState(null);
   const [exifData, setExifData] = useState(null);
@@ -113,10 +114,13 @@ const ToolPage = () => {
     }
 
     let endpoint = '';
-    const advancedTools = ['exif', 'strip-exif', 'upscale', 'to-svg', 'favicon', 'ocr', 'make-gif', 'grid-splitter', 'extract-colors', 'social-packager', 'heic-to-jpg', 'image-to-base64', 'watermark', 'meme', 'filters', 'stego-encode', 'stego-decode'];
+    const advancedTools = ['exif', 'strip-exif', 'upscale', 'favicon', 'ocr', 'make-gif', 'grid-splitter', 'extract-colors', 'social-packager', 'image-to-base64', 'watermark', 'meme', 'filters', 'stego-encode', 'stego-decode'];
     
     if (toolPath === 'image-to-pdf') {
       endpoint = `${API_URL}/pdf/images-to-pdf`;
+    } else if (toolPath === 'heic-to-jpg') {
+      endpoint = `${API_URL}/convert`;
+      formData.append('toFormat', 'jpg');
     } else if (advancedTools.includes(toolPath)) {
       endpoint = `${API_URL}/advanced/${toolPath}`;
     } else if (['resize', 'crop', 'rotate-flip'].includes(toolPath) || toolPath === 'rotate') {
@@ -147,13 +151,14 @@ const ToolPage = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       
       let ext = 'jpg';
-      if (toolPath === 'image-to-pdf') ext = 'pdf';
-      else if (toolPath === 'convert') ext = searchParams.get('to') || 'zip';
+      if (files.length > 1) ext = 'zip';
+      else if (toolPath === 'image-to-pdf') ext = 'pdf';
+      else if (toolPath === 'convert') ext = searchParams.get('to') || customConvertFormat || 'png';
+      else if (toolPath === 'heic-to-jpg') ext = 'jpg';
       else if (toolPath === 'to-svg') ext = 'svg';
       else if (toolPath === 'favicon' || toolPath === 'grid-splitter' || toolPath === 'social-packager') ext = 'zip';
       else if (toolPath === 'make-gif') ext = 'gif';
       else if (toolPath === 'upscale' || toolPath === 'watermark' || toolPath === 'meme' || toolPath === 'filters' || toolPath === 'stego-encode') ext = 'png';
-      else if (files.length > 1) ext = 'zip';
 
       setFilename(`ConvertPro_${toolPath}_${Date.now()}.${ext}`);
       setDownloadUrl(url);
@@ -214,6 +219,21 @@ const ToolPage = () => {
             <option value="grayscale">Grayscale / Black & White</option>
             <option value="blur">Gaussian Blur</option>
             <option value="sepia">Vintage Sepia</option>
+          </select>
+        </div>
+      );
+    }
+    if (toolPath === 'convert' && !searchParams.get('to')) {
+      return (
+        <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Select Output Format</label>
+          <select value={customConvertFormat} onChange={(e) => setCustomConvertFormat(e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-darkCard text-slate-900 dark:text-white">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPG / JPEG</option>
+            <option value="webp">WEBP</option>
+            <option value="gif">GIF</option>
+            <option value="tiff">TIFF</option>
+            <option value="bmp">BMP</option>
           </select>
         </div>
       );

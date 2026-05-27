@@ -17,7 +17,7 @@ const categories = [
     icon: <Image className="w-8 h-8 text-accent" />,
     tools: [
       { id: 'heic-to-jpg', title: 'HEIC to JPG', description: 'Convert Apple HEIC photos to standard JPG format.', icon: ArrowRightLeft, path: '/tool/heic-to-jpg' },
-      { id: 'svg-to-png', title: 'SVG to PNG', description: 'Rasterize scalable vectors into standard images.', icon: ArrowRightLeft, path: '/tool/svg-to-png' },
+      { id: 'svg-to-png', title: 'SVG to PNG', description: 'Rasterize scalable vectors into standard images.', icon: ArrowRightLeft, path: '/tool/convert?from=svg&to=png' },
       { id: 'favicon', title: 'Favicon Generator', description: 'Generate web-ready favicons (ico, png, zip).', icon: Image, path: '/tool/favicon' },
     ]
   },

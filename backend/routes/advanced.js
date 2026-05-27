@@ -82,9 +82,16 @@ router.post('/favicon', upload.single('image'), async (req, res) => {
     const sizes = [16, 32, 192, 512];
     const zipPath = path.join(__dirname, '../output', `favicon_${Date.now()}.zip`);
     const output = fs.createWriteStream(zipPath);
-    const archive = archiver.create('zip', { zlib: { level: 9 } });
+    const archive = archiver('zip', { zlib: { level: 9 } });
     
-    output.on('close', () => res.download(zipPath, 'favicons.zip'));
+    output.on('close', () => {
+      res.download(zipPath, 'favicons.zip');
+    });
+    
+    archive.on('error', (err) => {
+      throw err;
+    });
+
     archive.pipe(output);
     
     for (let size of sizes) {
