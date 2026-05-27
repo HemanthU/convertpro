@@ -62,7 +62,7 @@ const Home = () => {
           </span>
         </h1>
         <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10 font-medium">
-          100% Free online image tools. Organize, convert, optimize, and secure your images with professional-grade AI and editing tools.
+          100% Free online image tools.
         </p>
       </section>
 
