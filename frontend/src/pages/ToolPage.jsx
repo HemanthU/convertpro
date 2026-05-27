@@ -233,7 +233,7 @@ const ToolPage = () => {
             <option value="webp">WEBP</option>
             <option value="gif">GIF</option>
             <option value="tiff">TIFF</option>
-            <option value="bmp">BMP</option>
+            <option value="avif">AVIF</option>
           </select>
         </div>
       );

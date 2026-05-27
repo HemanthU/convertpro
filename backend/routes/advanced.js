@@ -165,10 +165,14 @@ router.post('/grid-splitter', upload.single('image'), async (req, res) => {
     const cellWidth = Math.floor(metadata.width / 3);
     const cellHeight = Math.floor(metadata.height / 3);
     
+    if (cellWidth === 0 || cellHeight === 0) return res.status(400).json({ error: 'Image too small to split' });
+    
     const zipPath = path.join(__dirname, '../output', `grid_${Date.now()}.zip`);
     const output = fs.createWriteStream(zipPath);
     const archive = archiver('zip', { zlib: { level: 9 } });
+    
     output.on('close', () => res.download(zipPath, 'instagram_grid.zip'));
+    archive.on('error', (err) => { throw err; });
     archive.pipe(output);
 
     let counter = 1;
@@ -182,7 +186,7 @@ router.post('/grid-splitter', upload.single('image'), async (req, res) => {
       }
     }
     archive.finalize();
-  } catch (error) { res.status(500).json({ error: 'Grid Split failed' }); }
+  } catch (error) { console.error(error); res.status(500).json({ error: 'Grid Split failed' }); }
 });
 
 // 8. Extract Colors (5-Color Palette)
@@ -206,7 +210,9 @@ router.post('/social-packager', upload.single('image'), async (req, res) => {
     const zipPath = path.join(__dirname, '../output', `social_${Date.now()}.zip`);
     const output = fs.createWriteStream(zipPath);
     const archive = archiver('zip', { zlib: { level: 9 } });
+    
     output.on('close', () => res.download(zipPath, 'social_pack.zip'));
+    archive.on('error', (err) => { throw err; });
     archive.pipe(output);
 
     const sizes = [
@@ -220,7 +226,7 @@ router.post('/social-packager', upload.single('image'), async (req, res) => {
       archive.append(buf, { name: s.name });
     }
     archive.finalize();
-  } catch (error) { res.status(500).json({ error: 'Social Packager failed' }); }
+  } catch (error) { console.error(error); res.status(500).json({ error: 'Social Packager failed' }); }
 });
 
 // 10. HEIC to JPG
