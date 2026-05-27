@@ -338,11 +338,29 @@ router.post('/stego-decode', upload.single('image'), async (req, res) => {
       bitCount++;
       if (bitCount === 8) {
         if (charCode === 0) break;
-        message += String.fromCharCode(charCode);
+        // Basic safety bounds to avoid rendering MBs of garbage
+        if (message.length > 10000) break; 
+        
+        // Add valid printable ASCII (and common utf8 ranges vaguely)
+        if (charCode >= 32 && charCode <= 126) {
+          message += String.fromCharCode(charCode);
+        } else {
+          // If we hit too much garbage in the first 20 chars, it's likely not an encoded image
+          if (message.length < 20) {
+            message += "?";
+          }
+        }
+        
         charCode = 0;
         bitCount = 0;
       }
     }
+    
+    // Check if it's completely unreadable garbage
+    if (message.startsWith("??????????")) {
+      message = "No hidden message found. The image may not contain a secret, or it was destroyed by compression (e.g. WhatsApp/JPG).";
+    }
+
     res.json({ message: message || 'No secret message found.' });
   } catch (error) { res.status(500).json({ error: 'Stego Decode failed' }); }
 });

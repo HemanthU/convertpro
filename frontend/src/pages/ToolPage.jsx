@@ -244,6 +244,10 @@ const ToolPage = () => {
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Secret Message to Hide</label>
           <input type="text" value={stegoMessage} onChange={(e) => setStegoMessage(e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-darkCard text-slate-900 dark:text-white" />
           <p className="text-xs text-slate-500 mt-2">The message will be invisibly encoded into the image pixels. Anyone with the image can decode it using our tool.</p>
+          <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+            <p className="text-xs text-yellow-800 dark:text-yellow-200 font-medium">⚠️ Important LSB Warning</p>
+            <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Sending the downloaded image through WhatsApp, Discord, or Instagram will compress the image and destroy the hidden message. You must send it as a "File/Document" or via Email/Google Drive to preserve the secret!</p>
+          </div>
         </div>
       );
     }
