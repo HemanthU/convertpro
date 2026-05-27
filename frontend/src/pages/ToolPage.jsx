@@ -43,7 +43,6 @@ const ToolPage = () => {
   const [extractedColors, setExtractedColors] = useState(null);
   const [base64Data, setBase64Data] = useState(null);
   const [stegoDecoded, setStegoDecoded] = useState(null);
-
   const getToolTitle = () => {
     switch (toolPath) {
       case 'convert': return `Convert ${searchParams.get('from')?.toUpperCase() || 'Image'} to ${searchParams.get('to')?.toUpperCase() || 'Format'}`;
@@ -52,22 +51,10 @@ const ToolPage = () => {
       case 'crop': return 'Crop Image';
       case 'rotate': return 'Rotate & Flip';
       case 'image-to-pdf': return 'Image to PDF';
-      case 'exif': return 'EXIF Viewer & Stripper';
       case 'upscale': return 'AI Upscaler';
       case 'to-svg': return 'Raster to Vector (SVG)';
-      case 'favicon': return 'Favicon Generator';
       case 'ocr': return 'Image to Text (OCR)';
-      case 'make-gif': return 'GIF Maker';
-      case 'grid-splitter': return 'Instagram Grid Splitter';
-      case 'extract-colors': return 'Color Palette Extractor';
-      case 'social-packager': return 'Social Media Auto-Packager';
-      case 'heic-to-jpg': return 'HEIC to JPG Converter';
       case 'image-to-base64': return 'Image to Base64';
-      case 'watermark': return 'Add Watermark';
-      case 'meme': return 'Meme Generator';
-      case 'filters': return 'Image Filters';
-      case 'stego-encode': return 'Hide Secret Message';
-      case 'stego-decode': return 'Reveal Secret Message';
       default: return 'Image Tool';
     }
   };
@@ -77,16 +64,8 @@ const ToolPage = () => {
     setError(null);
     setDownloadUrl(null);
 
-    // Reject HEIC/HEIF files immediately
-    const hasHeic = files.some(file => file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif'));
-    if (hasHeic) {
-      setError('Apple HEIC format is currently unsupported due to backend patent restrictions. Please use a PNG or JPG file.');
-      setIsProcessing(false);
-      return;
-    }
-
     const formData = new FormData();
-    const isMultiple = toolPath === 'image-to-pdf' || toolPath === 'convert' || toolPath === 'make-gif';
+    const isMultiple = toolPath === 'image-to-pdf' || toolPath === 'convert';
     
     // The /api/convert endpoint ALWAYS expects the key 'images', regardless of whether it's a multiple or single upload tool in the UI.
     const hitsConvertApi = toolPath === 'convert' || toolPath.startsWith('to-');
@@ -114,22 +93,11 @@ const ToolPage = () => {
       formData.append('flipV', flipV);
     } else if (toolPath === 'upscale') {
       formData.append('factor', upscaleFactor);
-    } else if (toolPath === 'make-gif') {
-      formData.append('delay', gifDelay);
-    } else if (toolPath === 'watermark') {
-      formData.append('text', watermarkText);
-    } else if (toolPath === 'meme') {
-      formData.append('topText', memeTop);
-      formData.append('bottomText', memeBottom);
-    } else if (toolPath === 'filters') {
-      formData.append('filter', filterType);
-    } else if (toolPath === 'stego-encode') {
-      formData.append('message', stegoMessage);
     }
     
     try {
       let endpoint = '';
-      const advancedTools = ['exif', 'strip-exif', 'upscale', 'favicon', 'ocr', 'make-gif', 'grid-splitter', 'extract-colors', 'social-packager', 'image-to-base64', 'watermark', 'meme', 'filters', 'stego-encode', 'stego-decode', 'to-svg'];
+      const advancedTools = ['upscale', 'ocr', 'image-to-base64', 'to-svg'];
       
       if (toolPath === 'image-to-pdf') {
         endpoint = `${API_URL}/pdf/images-to-pdf`;
@@ -145,7 +113,7 @@ const ToolPage = () => {
       }
 
       // endpoints that return JSON data instead of a file blob
-      const jsonEndpoints = ['ocr', 'exif', 'extract-colors', 'stego-decode'];
+      const jsonEndpoints = ['ocr'];
       const isJson = jsonEndpoints.includes(toolPath);
 
       const response = await axios.post(endpoint, formData, {
@@ -155,9 +123,6 @@ const ToolPage = () => {
 
       if (isJson) {
         if (toolPath === 'ocr') setOcrText(response.data.text);
-        if (toolPath === 'exif') setExifData(response.data.metadata);
-        if (toolPath === 'extract-colors') setExtractedColors(response.data.colors);
-        if (toolPath === 'stego-decode') setStegoDecoded(response.data.message);
         
         setIsProcessing(false);
         return;
@@ -167,18 +132,16 @@ const ToolPage = () => {
       
       let ext = 'jpg';
       if (toolPath === 'image-to-pdf') ext = 'pdf';
-      else if (toolPath === 'make-gif') ext = 'gif';
       else if (files.length > 1) ext = 'zip'; // Only fall back to ZIP for convert/others if multiple
       else if (toolPath === 'convert') ext = searchParams.get('to') || customConvertFormat || 'png';
-      else if (toolPath === 'heic-to-jpg' || toolPath === 'to-jpg') ext = 'jpg';
+      else if (toolPath === 'to-jpg') ext = 'jpg';
       else if (toolPath === 'to-png') ext = 'png';
       else if (toolPath === 'to-svg') ext = 'svg';
       else if (toolPath === 'image-to-base64') ext = 'txt';
-      else if (toolPath === 'favicon' || toolPath === 'grid-splitter' || toolPath === 'social-packager') ext = 'zip';
       else if (toolPath === 'to-webp') ext = 'webp';
       else if (toolPath === 'to-gif') ext = 'gif';
       else if (toolPath === 'to-tiff') ext = 'tiff';
-      else if (toolPath === 'upscale' || toolPath === 'watermark' || toolPath === 'meme' || toolPath === 'filters' || toolPath === 'stego-encode') ext = 'png';
+      else if (toolPath === 'upscale') ext = 'png';
 
       setFilename(`ConvertPro_${toolPath}_${Date.now()}.${ext}`);
       setDownloadUrl(url);
@@ -209,40 +172,6 @@ const ToolPage = () => {
         </div>
       );
     }
-    if (toolPath === 'watermark') {
-      return (
-        <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Watermark Text</label>
-          <input type="text" value={watermarkText} onChange={(e) => setWatermarkText(e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-darkCard text-slate-900 dark:text-white" />
-        </div>
-      );
-    }
-    if (toolPath === 'meme') {
-      return (
-        <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Top Text</label>
-            <input type="text" value={memeTop} onChange={(e) => setMemeTop(e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-darkCard text-slate-900 dark:text-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Bottom Text</label>
-            <input type="text" value={memeBottom} onChange={(e) => setMemeBottom(e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-darkCard text-slate-900 dark:text-white" />
-          </div>
-        </div>
-      );
-    }
-    if (toolPath === 'filters') {
-      return (
-        <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Select Filter</label>
-          <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-darkCard text-slate-900 dark:text-white">
-            <option value="grayscale">Grayscale / Black & White</option>
-            <option value="blur">Gaussian Blur</option>
-            <option value="sepia">Vintage Sepia</option>
-          </select>
-        </div>
-      );
-    }
     if (toolPath === 'convert' && !searchParams.get('to')) {
       return (
         <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -255,19 +184,6 @@ const ToolPage = () => {
             <option value="tiff">TIFF</option>
             <option value="avif">AVIF</option>
           </select>
-        </div>
-      );
-    }
-    if (toolPath === 'stego-encode') {
-      return (
-        <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Secret Message to Hide</label>
-          <input type="text" value={stegoMessage} onChange={(e) => setStegoMessage(e.target.value)} className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-darkCard text-slate-900 dark:text-white" />
-          <p className="text-xs text-slate-500 mt-2">The message will be invisibly encoded into the image pixels. Anyone with the image can decode it using our tool.</p>
-          <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
-            <p className="text-xs text-yellow-800 dark:text-yellow-200 font-medium">⚠️ Important LSB Warning</p>
-            <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Sending the downloaded image through WhatsApp, Discord, or Instagram will compress the image and destroy the hidden message. You must send it as a "File/Document" or via Email/Google Drive to preserve the secret!</p>
-          </div>
         </div>
       );
     }
@@ -346,18 +262,10 @@ const ToolPage = () => {
         </div>
       );
     }
-    if (toolPath === 'make-gif') {
-      return (
-        <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Frame Delay (ms)</label>
-          <input type="number" value={gifDelay} onChange={(e) => setGifDelay(e.target.value)} step="100" className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-darkCard text-slate-900 dark:text-white" />
-        </div>
-      );
-    }
     return null;
   };
 
-  const hasJsonResult = ocrText || exifData || extractedColors || base64Data || stegoDecoded;
+  const hasJsonResult = ocrText || base64Data;
 
   return (
     <div className="min-h-screen pt-12 pb-24 px-4 sm:px-6 lg:px-8">
@@ -385,31 +293,6 @@ const ToolPage = () => {
           <button onClick={() => setOcrText(null)} className="px-6 py-3 bg-accent text-white rounded-xl">Process Another</button>
         </div>
       )}
-
-      {stegoDecoded && (
-        <div className="max-w-4xl mx-auto bg-white dark:bg-darkCard rounded-3xl p-10 md:p-16 text-left shadow-soft border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
-          <h2 className="text-2xl font-bold mb-4 dark:text-white text-green-500">Secret Revealed!</h2>
-          <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-xl mb-6">
-            <p className="text-xl font-mono text-slate-800 dark:text-white">{stegoDecoded}</p>
-          </div>
-          <button onClick={() => setStegoDecoded(null)} className="px-6 py-3 bg-accent text-white rounded-xl">Decode Another</button>
-        </div>
-      )}
-
-      {extractedColors && (
-        <div className="max-w-4xl mx-auto bg-white dark:bg-darkCard rounded-3xl p-10 md:p-16 text-center shadow-soft border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
-          <h2 className="text-2xl font-bold mb-8 dark:text-white">Extracted Color Palette:</h2>
-          <div className="flex flex-wrap justify-center gap-6 mb-10">
-            {extractedColors.map((color, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-2xl shadow-md mb-3" style={{ backgroundColor: color }}></div>
-                <p className="font-mono text-sm dark:text-slate-300 font-bold">{color}</p>
-              </div>
-            ))}
-          </div>
-          <button onClick={() => setExtractedColors(null)} className="px-6 py-3 bg-accent text-white rounded-xl">Extract Another</button>
-        </div>
-      )}
       
       {base64Data && (
         <div className="max-w-4xl mx-auto bg-white dark:bg-darkCard rounded-3xl p-10 md:p-16 text-left shadow-soft border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
@@ -419,23 +302,10 @@ const ToolPage = () => {
         </div>
       )}
 
-      {exifData && (
-        <div className="max-w-4xl mx-auto bg-white dark:bg-darkCard rounded-3xl p-10 md:p-16 text-left shadow-soft border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
-          <h2 className="text-2xl font-bold mb-4 dark:text-white">EXIF Metadata:</h2>
-          <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-xl overflow-auto max-h-96 mb-6">
-            <pre className="text-sm dark:text-slate-300">{JSON.stringify(exifData, null, 2)}</pre>
-          </div>
-          <div className="flex gap-4">
-            <button onClick={() => setExifData(null)} className="px-6 py-3 bg-slate-200 dark:bg-slate-700 dark:text-white rounded-xl">Upload Another</button>
-            <a href="/tool/strip-exif" className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600">Strip EXIF Data</a>
-          </div>
-        </div>
-      )}
-
       {!downloadUrl && !hasJsonResult ? (
         <UploadArea 
           onUpload={handleUpload} 
-          multiple={toolPath === 'convert' || toolPath === 'image-to-pdf' || toolPath === 'make-gif'}
+          multiple={toolPath === 'convert' || toolPath === 'image-to-pdf'}
           isProcessing={isProcessing}
           optionsUI={renderOptions()}
         />

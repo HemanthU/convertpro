@@ -16,9 +16,7 @@ const categories = [
     title: 'Convert TO Image',
     icon: <Image className="w-8 h-8 text-accent" />,
     tools: [
-      { id: 'heic-to-jpg', title: 'HEIC to JPG', description: 'Convert Apple HEIC photos to standard JPG format.', icon: ArrowRightLeft, path: '/tool/heic-to-jpg' },
       { id: 'svg-to-png', title: 'SVG to PNG', description: 'Rasterize scalable vectors into standard images.', icon: ArrowRightLeft, path: '/tool/convert?from=svg&to=png' },
-      { id: 'favicon', title: 'Favicon Generator', description: 'Generate web-ready favicons (ico, png, zip).', icon: Image, path: '/tool/favicon' },
     ]
   },
   {
@@ -42,28 +40,6 @@ const categories = [
     tools: [
       { id: 'crop', title: 'Crop Image', description: 'Crop images to exact pixels or specific ratios.', icon: Crop, path: '/tool/crop' },
       { id: 'rotate', title: 'Rotate & Flip', description: 'Rotate images or flip them horizontally/vertically.', icon: RotateCw, path: '/tool/rotate' },
-      { id: 'watermark', title: 'Add Watermark', description: 'Stamp a custom text watermark onto your images.', icon: PenTool, path: '/tool/watermark' },
-      { id: 'meme', title: 'Meme Generator', description: 'Add Top and Bottom text to your images.', icon: Type, path: '/tool/meme' },
-      { id: 'filters', title: 'Image Filters', description: 'Apply grayscale, blur, and brightness adjustments.', icon: Palette, path: '/tool/filters' },
-      { id: 'make-gif', title: 'GIF Maker', description: 'Stitch multiple images into a looping GIF.', icon: Layers, path: '/tool/make-gif' },
-    ]
-  },
-  {
-    title: 'Organize Image',
-    icon: <Grid className="w-8 h-8 text-accent" />,
-    tools: [
-      { id: 'grid-splitter', title: 'Grid Splitter', description: 'Slice an image into a 3x3 grid for Instagram.', icon: Grid, path: '/tool/grid-splitter' },
-      { id: 'extract-colors', title: 'Color Palette', description: 'Extract the dominant hex colors from any photo.', icon: Palette, path: '/tool/extract-colors' },
-      { id: 'social-packager', title: 'Social Packager', description: 'Auto-crop for Instagram, Twitter, and YouTube.', icon: Layers, path: '/tool/social-packager' },
-    ]
-  },
-  {
-    title: 'Image Security',
-    icon: <Shield className="w-8 h-8 text-accent" />,
-    tools: [
-      { id: 'exif', title: 'EXIF Viewer & Stripper', description: 'View hidden metadata and strip it for privacy.', icon: Shield, path: '/tool/exif' },
-      { id: 'stego-encode', title: 'Hide Secret Message', description: 'Invisibly encode a secret text into an image.', icon: Lock, path: '/tool/stego-encode' },
-      { id: 'stego-decode', title: 'Reveal Secret', description: 'Decrypt and reveal hidden steganography text.', icon: Lock, path: '/tool/stego-decode' },
     ]
   }
 ];
@@ -78,15 +54,17 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="relative z-10 pt-28 pb-20 px-4 text-center animate-float">
-
+        <div className="flex justify-center mb-6">
+          <img src="/logo.png" alt="ConvertPro Logo" className="h-24 md:h-32 drop-shadow-xl" onError={(e) => { e.target.style.display = 'none'; }} />
+        </div>
         <h1 className="text-5xl md:text-7xl font-black font-heading text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
-          Every tool you could need to <br className="hidden md:block" />
+          The only tool you need to <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-blue-500 to-purple-500">
-            master your images
+            convert & optimize images
           </span>
         </h1>
         <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10 font-medium">
-          100% Free online image tools. Organize, convert, optimize, and secure your images with professional-grade AI and editing tools.
+          100% Free online image tools. Convert between dozens of formats, compress file sizes, and upscale with professional-grade AI.
         </p>
       </section>
 
