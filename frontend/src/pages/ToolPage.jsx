@@ -79,7 +79,13 @@ const ToolPage = () => {
 
     const formData = new FormData();
     const isMultiple = toolPath === 'image-to-pdf' || toolPath === 'convert' || toolPath === 'make-gif';
-    files.forEach(file => formData.append(isMultiple ? 'images' : 'image', file));
+    
+    // The /api/convert endpoint ALWAYS expects the key 'images', regardless of whether it's a multiple or single upload tool in the UI.
+    const hitsConvertApi = toolPath === 'convert' || toolPath === 'heic-to-jpg' || toolPath.startsWith('to-');
+    
+    files.forEach(file => {
+      formData.append(hitsConvertApi || isMultiple ? 'images' : 'image', file);
+    });
 
     if (toolPath === 'convert') {
       formData.append('toFormat', searchParams.get('to') || 'png');
@@ -112,36 +118,39 @@ const ToolPage = () => {
     } else if (toolPath === 'stego-encode') {
       formData.append('message', stegoMessage);
     }
-
-    let endpoint = '';
-    const advancedTools = ['exif', 'strip-exif', 'upscale', 'favicon', 'ocr', 'make-gif', 'grid-splitter', 'extract-colors', 'social-packager', 'image-to-base64', 'watermark', 'meme', 'filters', 'stego-encode', 'stego-decode'];
-    
-    if (toolPath === 'image-to-pdf') {
-      endpoint = `${API_URL}/pdf/images-to-pdf`;
-    } else if (toolPath === 'heic-to-jpg') {
-      endpoint = `${API_URL}/convert`;
-      formData.append('toFormat', 'jpg');
-    } else if (advancedTools.includes(toolPath)) {
-      endpoint = `${API_URL}/advanced/${toolPath}`;
-    } else if (['resize', 'crop', 'rotate-flip'].includes(toolPath) || toolPath === 'rotate') {
-      endpoint = `${API_URL}/edit/${toolPath === 'rotate' ? 'rotate-flip' : toolPath}`;
-    } else {
-      endpoint = `${API_URL}/${toolPath}`;
-    }
-    
     try {
+      let endpoint = '';
+      const advancedTools = ['exif', 'strip-exif', 'upscale', 'favicon', 'ocr', 'make-gif', 'grid-splitter', 'extract-colors', 'social-packager', 'image-to-base64', 'watermark', 'meme', 'filters', 'stego-encode', 'stego-decode', 'to-svg'];
+      
+      if (toolPath === 'image-to-pdf') {
+        endpoint = `${API_URL}/pdf/images-to-pdf`;
+      } else if (toolPath === 'heic-to-jpg') {
+        endpoint = `${API_URL}/convert`;
+        formData.append('toFormat', 'jpg');
+      } else if (toolPath.startsWith('to-') && toolPath !== 'to-svg') {
+        endpoint = `${API_URL}/convert`;
+        formData.append('toFormat', toolPath.split('-')[1]);
+      } else if (advancedTools.includes(toolPath)) {
+        endpoint = `${API_URL}/advanced/${toolPath}`;
+      } else if (['resize', 'crop', 'rotate-flip'].includes(toolPath) || toolPath === 'rotate') {
+        endpoint = `${API_URL}/edit/${toolPath === 'rotate' ? 'rotate-flip' : toolPath}`;
+      } else {
+        endpoint = `${API_URL}/${toolPath}`; // Custom converter hits /api/convert
+      }
+
+      // endpoints that return JSON data instead of a file blob
       const jsonEndpoints = ['ocr', 'exif', 'extract-colors', 'stego-decode'];
       const isJson = jsonEndpoints.includes(toolPath);
+
       const response = await axios.post(endpoint, formData, {
         responseType: isJson ? 'json' : 'blob',
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       if (isJson) {
         if (toolPath === 'ocr') setOcrText(response.data.text);
         if (toolPath === 'exif') setExifData(response.data.metadata);
         if (toolPath === 'extract-colors') setExtractedColors(response.data.colors);
-        if (toolPath === 'image-to-base64') setBase64Data(response.data.base64);
         if (toolPath === 'stego-decode') setStegoDecoded(response.data.message);
         
         setIsProcessing(false);
@@ -151,14 +160,18 @@ const ToolPage = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       
       let ext = 'jpg';
-      if (files.length > 1) ext = 'zip';
-      else if (toolPath === 'image-to-pdf') ext = 'pdf';
+      if (toolPath === 'image-to-pdf') ext = 'pdf';
+      else if (toolPath === 'make-gif') ext = 'gif';
+      else if (files.length > 1) ext = 'zip'; // Only fall back to ZIP for convert/others if multiple
       else if (toolPath === 'convert') ext = searchParams.get('to') || customConvertFormat || 'png';
-      else if (toolPath === 'heic-to-jpg') ext = 'jpg';
+      else if (toolPath === 'heic-to-jpg' || toolPath === 'to-jpg') ext = 'jpg';
+      else if (toolPath === 'to-png') ext = 'png';
       else if (toolPath === 'to-svg') ext = 'svg';
       else if (toolPath === 'image-to-base64') ext = 'txt';
       else if (toolPath === 'favicon' || toolPath === 'grid-splitter' || toolPath === 'social-packager') ext = 'zip';
-      else if (toolPath === 'make-gif') ext = 'gif';
+      else if (toolPath === 'to-webp') ext = 'webp';
+      else if (toolPath === 'to-gif') ext = 'gif';
+      else if (toolPath === 'to-tiff') ext = 'tiff';
       else if (toolPath === 'upscale' || toolPath === 'watermark' || toolPath === 'meme' || toolPath === 'filters' || toolPath === 'stego-encode') ext = 'png';
 
       setFilename(`ConvertPro_${toolPath}_${Date.now()}.${ext}`);
