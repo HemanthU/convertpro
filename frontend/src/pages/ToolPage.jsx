@@ -77,11 +77,19 @@ const ToolPage = () => {
     setError(null);
     setDownloadUrl(null);
 
+    // Reject HEIC/HEIF files immediately
+    const hasHeic = files.some(file => file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif'));
+    if (hasHeic) {
+      setError('Apple HEIC format is currently unsupported due to backend patent restrictions. Please use a PNG or JPG file.');
+      setIsProcessing(false);
+      return;
+    }
+
     const formData = new FormData();
     const isMultiple = toolPath === 'image-to-pdf' || toolPath === 'convert' || toolPath === 'make-gif';
     
     // The /api/convert endpoint ALWAYS expects the key 'images', regardless of whether it's a multiple or single upload tool in the UI.
-    const hitsConvertApi = toolPath === 'convert' || toolPath === 'heic-to-jpg' || toolPath.startsWith('to-');
+    const hitsConvertApi = toolPath === 'convert' || toolPath.startsWith('to-');
     
     files.forEach(file => {
       formData.append(hitsConvertApi || isMultiple ? 'images' : 'image', file);
@@ -118,15 +126,13 @@ const ToolPage = () => {
     } else if (toolPath === 'stego-encode') {
       formData.append('message', stegoMessage);
     }
+    
     try {
       let endpoint = '';
       const advancedTools = ['exif', 'strip-exif', 'upscale', 'favicon', 'ocr', 'make-gif', 'grid-splitter', 'extract-colors', 'social-packager', 'image-to-base64', 'watermark', 'meme', 'filters', 'stego-encode', 'stego-decode', 'to-svg'];
       
       if (toolPath === 'image-to-pdf') {
         endpoint = `${API_URL}/pdf/images-to-pdf`;
-      } else if (toolPath === 'heic-to-jpg') {
-        endpoint = `${API_URL}/convert`;
-        formData.append('toFormat', 'jpg');
       } else if (toolPath.startsWith('to-') && toolPath !== 'to-svg') {
         endpoint = `${API_URL}/convert`;
         formData.append('toFormat', toolPath.split('-')[1]);
