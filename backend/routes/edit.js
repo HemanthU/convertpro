@@ -38,18 +38,27 @@ router.post('/crop', upload.single('image'), async (req, res) => {
     const { left, top, width, height } = req.body;
     const outputPath = path.join(__dirname, '../output', `cropped_${req.file.filename}.jpg`);
     
-    await sharp(req.file.path)
+    const image = sharp(req.file.path);
+    const metadata = await image.metadata();
+    
+    // Safely bound the crop area to the image's actual dimensions to prevent crashes
+    const safeLeft = Math.max(0, Math.min(parseInt(left) || 0, metadata.width - 1));
+    const safeTop = Math.max(0, Math.min(parseInt(top) || 0, metadata.height - 1));
+    const safeWidth = Math.max(1, Math.min(parseInt(width) || metadata.width, metadata.width - safeLeft));
+    const safeHeight = Math.max(1, Math.min(parseInt(height) || metadata.height, metadata.height - safeTop));
+    
+    await image
       .extract({ 
-        left: parseInt(left), 
-        top: parseInt(top), 
-        width: parseInt(width), 
-        height: parseInt(height) 
+        left: safeLeft, 
+        top: safeTop, 
+        width: safeWidth, 
+        height: safeHeight 
       })
       .toFile(outputPath);
       
     res.download(outputPath, 'cropped_image.jpg');
   } catch (error) {
-    console.error(error);
+    console.error("Crop error:", error);
     res.status(500).json({ error: 'Crop failed' });
   }
 });
