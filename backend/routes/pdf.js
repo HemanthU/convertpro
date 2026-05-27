@@ -5,10 +5,10 @@ const { PDFDocument } = require('pdf-lib');
 const fs = require('fs');
 const path = require('path');
 
-// 50MB limit, up to 20 files
+// 100MB limit, up to 20 files
 const upload = multer({ 
   dest: 'uploads/',
-  limits: { fileSize: 50 * 1024 * 1024 }
+  limits: { fileSize: 100 * 1024 * 1024 }
 });
 
 // Image to PDF

@@ -78,7 +78,7 @@ const UploadArea = ({ onUpload, multiple = true, accept = "image/*", isProcessin
               {dragActive ? 'Drop your files now!' : 'Choose files or drag & drop here'}
             </h3>
             <p className="text-slate-500 dark:text-slate-400 font-medium">
-              JPG, PNG, WEBP, GIF up to 50MB
+              JPG, PNG, WEBP, GIF up to 100MB
             </p>
           </div>
           <button 

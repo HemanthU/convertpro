@@ -6,10 +6,10 @@ const path = require('path');
 const fs = require('fs');
 const archiver = require('archiver');
 
-// 50MB limit, up to 20 files
+// 100MB limit, up to 20 files
 const upload = multer({ 
   dest: 'uploads/',
-  limits: { fileSize: 50 * 1024 * 1024 }
+  limits: { fileSize: 100 * 1024 * 1024 }
 });
 
 router.post('/', upload.array('images', 20), async (req, res) => {
