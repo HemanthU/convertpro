@@ -130,7 +130,7 @@ const ToolPage = () => {
     }
     
     try {
-      const jsonEndpoints = ['ocr', 'exif', 'extract-colors', 'image-to-base64', 'stego-decode'];
+      const jsonEndpoints = ['ocr', 'exif', 'extract-colors', 'stego-decode'];
       const isJson = jsonEndpoints.includes(toolPath);
       const response = await axios.post(endpoint, formData, {
         responseType: isJson ? 'json' : 'blob',
@@ -156,6 +156,7 @@ const ToolPage = () => {
       else if (toolPath === 'convert') ext = searchParams.get('to') || customConvertFormat || 'png';
       else if (toolPath === 'heic-to-jpg') ext = 'jpg';
       else if (toolPath === 'to-svg') ext = 'svg';
+      else if (toolPath === 'image-to-base64') ext = 'txt';
       else if (toolPath === 'favicon' || toolPath === 'grid-splitter' || toolPath === 'social-packager') ext = 'zip';
       else if (toolPath === 'make-gif') ext = 'gif';
       else if (toolPath === 'upscale' || toolPath === 'watermark' || toolPath === 'meme' || toolPath === 'filters' || toolPath === 'stego-encode') ext = 'png';
