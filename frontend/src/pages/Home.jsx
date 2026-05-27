@@ -5,7 +5,7 @@ import ToolCard from '../components/ui/ToolCard';
 const categories = [
   {
     title: 'Optimize Image',
-    icon: <Zap className="w-6 h-6 mb-4 text-accent" />,
+    icon: <Zap className="w-8 h-8 text-accent" />,
     tools: [
       { id: 'compress', title: 'Compress Image', description: 'Reduce file size while maintaining visual quality.', icon: Maximize, path: '/tool/compress' },
       { id: 'upscale', title: 'AI Upscaler', description: 'Enhance and upscale images without losing quality.', icon: Maximize, path: '/tool/upscale' },
@@ -14,7 +14,7 @@ const categories = [
   },
   {
     title: 'Convert TO Image',
-    icon: <Image className="w-6 h-6 mb-4 text-accent" />,
+    icon: <Image className="w-8 h-8 text-accent" />,
     tools: [
       { id: 'heic-to-jpg', title: 'HEIC to JPG', description: 'Convert Apple HEIC photos to standard JPG format.', icon: ArrowRightLeft, path: '/tool/heic-to-jpg' },
       { id: 'svg-to-png', title: 'SVG to PNG', description: 'Rasterize scalable vectors into standard images.', icon: ArrowRightLeft, path: '/tool/svg-to-png' },
@@ -23,7 +23,7 @@ const categories = [
   },
   {
     title: 'Format Conversion',
-    icon: <FileOutput className="w-6 h-6 mb-4 text-accent" />,
+    icon: <FileOutput className="w-8 h-8 text-accent" />,
     tools: [
       { id: 'to-jpg', title: 'Convert to JPG', description: 'Convert any image format to standard JPG.', icon: ArrowRightLeft, path: '/tool/convert?to=jpg' },
       { id: 'to-png', title: 'Convert to PNG', description: 'Convert any image format to transparent PNG.', icon: ArrowRightLeft, path: '/tool/convert?to=png' },
@@ -38,7 +38,7 @@ const categories = [
   },
   {
     title: 'Edit Image',
-    icon: <PenTool className="w-6 h-6 mb-4 text-accent" />,
+    icon: <PenTool className="w-8 h-8 text-accent" />,
     tools: [
       { id: 'crop', title: 'Crop Image', description: 'Crop images to exact pixels or specific ratios.', icon: Crop, path: '/tool/crop' },
       { id: 'rotate', title: 'Rotate & Flip', description: 'Rotate images or flip them horizontally/vertically.', icon: RotateCw, path: '/tool/rotate' },
@@ -50,7 +50,7 @@ const categories = [
   },
   {
     title: 'Organize Image',
-    icon: <Grid className="w-6 h-6 mb-4 text-accent" />,
+    icon: <Grid className="w-8 h-8 text-accent" />,
     tools: [
       { id: 'grid-splitter', title: 'Grid Splitter', description: 'Slice an image into a 3x3 grid for Instagram.', icon: Grid, path: '/tool/grid-splitter' },
       { id: 'extract-colors', title: 'Color Palette', description: 'Extract the dominant hex colors from any photo.', icon: Palette, path: '/tool/extract-colors' },
@@ -59,7 +59,7 @@ const categories = [
   },
   {
     title: 'Image Security',
-    icon: <Shield className="w-6 h-6 mb-4 text-accent" />,
+    icon: <Shield className="w-8 h-8 text-accent" />,
     tools: [
       { id: 'exif', title: 'EXIF Viewer & Stripper', description: 'View hidden metadata and strip it for privacy.', icon: Shield, path: '/tool/exif' },
       { id: 'stego-encode', title: 'Hide Secret Message', description: 'Invisibly encode a secret text into an image.', icon: Lock, path: '/tool/stego-encode' },
@@ -78,9 +78,7 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="relative z-10 pt-28 pb-20 px-4 text-center animate-float">
-        <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-blue-200/50 dark:border-blue-700/30 bg-blue-50/50 dark:bg-blue-900/20 backdrop-blur-md">
-          <span className="text-sm font-semibold tracking-wide text-blue-600 dark:text-blue-400">✨ The Ultimate Image Suite</span>
-        </div>
+
         <h1 className="text-5xl md:text-7xl font-black font-heading text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
           Every tool you could need to <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-blue-500 to-purple-500">
@@ -97,7 +95,7 @@ const Home = () => {
         {categories.map((category, index) => (
           <div key={index} className="animate-in fade-in slide-in-from-bottom-12 duration-1000" style={{ animationFillMode: 'both', animationDelay: `${index * 150}ms` }}>
             <div className="flex items-center space-x-4 mb-8">
-              <div className="p-3 bg-white dark:bg-darkCard rounded-2xl shadow-soft dark:shadow-glow border border-slate-100 dark:border-slate-800">
+              <div className="p-2.5 bg-white dark:bg-darkCard rounded-xl shadow-sm dark:shadow-glow border border-slate-100 dark:border-slate-800 flex items-center justify-center">
                 {category.icon}
               </div>
               <h2 className="text-4xl font-heading font-black text-slate-900 dark:text-white tracking-tight">
