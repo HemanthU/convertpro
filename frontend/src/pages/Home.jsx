@@ -70,31 +70,41 @@ const categories = [
 
 const Home = () => {
   return (
-    <div className="min-h-screen pb-16">
+    <div className="min-h-screen pb-16 bg-mesh relative overflow-hidden">
+      {/* Decorative floating blobs */}
+      <div className="absolute top-0 -left-40 w-96 h-96 bg-blue-500/10 dark:bg-blue-500/5 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob"></div>
+      <div className="absolute top-0 -right-40 w-96 h-96 bg-purple-500/10 dark:bg-purple-500/5 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+      <div className="absolute -bottom-40 left-20 w-96 h-96 bg-pink-500/10 dark:bg-pink-500/5 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+
       {/* Hero Section */}
-      <section className="pt-20 pb-16 px-4 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold font-heading text-slate-900 dark:text-white mb-6">
+      <section className="relative z-10 pt-28 pb-20 px-4 text-center animate-float">
+        <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-blue-200/50 dark:border-blue-700/30 bg-blue-50/50 dark:bg-blue-900/20 backdrop-blur-md">
+          <span className="text-sm font-semibold tracking-wide text-blue-600 dark:text-blue-400">✨ The Ultimate Image Suite</span>
+        </div>
+        <h1 className="text-5xl md:text-7xl font-black font-heading text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
           Every tool you could need to <br className="hidden md:block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accentDark">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-blue-500 to-purple-500">
             master your images
           </span>
         </h1>
-        <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10">
+        <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10 font-medium">
           100% Free online image tools. Organize, convert, optimize, and secure your images with professional-grade AI and editing tools.
         </p>
       </section>
 
       {/* Categorized Tools Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 space-y-16">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24 space-y-24">
         {categories.map((category, index) => (
-          <div key={index} className="animate-in fade-in slide-in-from-bottom-8 duration-700" style={{ animationFillMode: 'both', animationDelay: `${index * 100}ms` }}>
-            <div className="flex items-center space-x-3 mb-6">
-              {category.icon}
-              <h2 className="text-3xl font-heading font-bold text-slate-900 dark:text-white mb-4">
+          <div key={index} className="animate-in fade-in slide-in-from-bottom-12 duration-1000" style={{ animationFillMode: 'both', animationDelay: `${index * 150}ms` }}>
+            <div className="flex items-center space-x-4 mb-8">
+              <div className="p-3 bg-white dark:bg-darkCard rounded-2xl shadow-soft dark:shadow-glow border border-slate-100 dark:border-slate-800">
+                {category.icon}
+              </div>
+              <h2 className="text-4xl font-heading font-black text-slate-900 dark:text-white tracking-tight">
                 {category.title}
               </h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {category.tools.map((tool) => (
                 <ToolCard 
                   key={tool.id}
@@ -105,7 +115,6 @@ const Home = () => {
                 />
               ))}
             </div>
-            {index !== categories.length - 1 && <div className="h-px bg-slate-200 dark:bg-slate-800 w-full mt-16"></div>}
           </div>
         ))}
       </section>

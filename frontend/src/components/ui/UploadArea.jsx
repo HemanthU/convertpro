@@ -50,9 +50,10 @@ const UploadArea = ({ onUpload, multiple = true, accept = "image/*", isProcessin
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div 
-        className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300
-          ${dragActive ? 'border-accent bg-blue-50 dark:bg-blue-900/20' : 'border-slate-300 dark:border-slate-700 hover:border-accent hover:bg-slate-50 dark:hover:bg-slate-800/50'}
-          ${isProcessing ? 'opacity-50 pointer-events-none' : ''}
+        className={`relative rounded-3xl p-16 text-center transition-all duration-500 transform
+          ${dragActive ? 'scale-[1.02] bg-blue-50/80 dark:bg-blue-900/30 marching-ants shadow-glow' : 'hover:scale-[1.01] bg-white/50 dark:bg-darkCard/50 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-accent hover:shadow-glow'}
+          ${isProcessing ? 'opacity-70 pointer-events-none animate-pulse' : 'hover-lift'}
+          glass
         `}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -68,20 +69,22 @@ const UploadArea = ({ onUpload, multiple = true, accept = "image/*", isProcessin
           className="hidden"
         />
         
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/40 text-accent rounded-full flex items-center justify-center mb-2">
-            <UploadCloud size={40} />
+        <div className="flex flex-col items-center justify-center space-y-6">
+          <div className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500 ${dragActive ? 'bg-accent text-white shadow-glow scale-110' : 'bg-blue-100 dark:bg-slate-800 text-accent group-hover:scale-110'}`}>
+            <UploadCloud size={48} className={dragActive ? 'animate-bounce' : ''} />
           </div>
-          <h3 className="text-2xl font-heading font-bold text-slate-900 dark:text-white">
-            Choose files or drag & drop here
-          </h3>
-          <p className="text-slate-500 dark:text-slate-400">
-            JPG, PNG, WEBP, GIF up to 50MB
-          </p>
+          <div>
+            <h3 className="text-3xl font-heading font-black text-slate-900 dark:text-white mb-2 tracking-tight">
+              {dragActive ? 'Drop your files now!' : 'Choose files or drag & drop here'}
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 font-medium">
+              JPG, PNG, WEBP, GIF up to 50MB
+            </p>
+          </div>
           <button 
             type="button"
             onClick={() => inputRef.current.click()}
-            className="mt-4 px-8 py-3 bg-gradient-to-r from-accent to-accentDark text-white font-medium rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all transform hover:-translate-y-0.5"
+            className="mt-6 px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 hover:scale-105"
           >
             Select Files
           </button>

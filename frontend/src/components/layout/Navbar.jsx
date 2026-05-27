@@ -28,30 +28,30 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-slate-200 dark:border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-accent text-white p-2 rounded-lg">
-              <ImageIcon size={24} />
+    <div className="fixed w-full top-4 z-50 flex justify-center px-4 pointer-events-none">
+      <nav className="glass border border-slate-200/50 dark:border-slate-700/50 rounded-full px-6 py-3 pointer-events-auto shadow-xl dark:shadow-glow-purple transition-all duration-300 hover:scale-[1.02]">
+        <div className="flex justify-between items-center space-x-12">
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="bg-gradient-to-br from-accent to-purple-500 text-white p-2 rounded-xl shadow-glow transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
+              <ImageIcon size={22} />
             </div>
-            <span className="font-heading font-bold text-xl tracking-tight text-slate-900 dark:text-white">
-              Convert<span className="text-accent">Pro</span>
+            <span className="font-heading font-black text-xl tracking-tight text-slate-900 dark:text-white transition-colors group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-accent group-hover:to-purple-500">
+              ConvertPro
             </span>
           </Link>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-2.5 rounded-full hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all hover:scale-110 active:scale-95"
               aria-label="Toggle Dark Mode"
             >
-              {isDark ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-slate-600" />}
+              {isDark ? <Sun size={20} className="text-amber-400 hover:animate-spin-slow" /> : <Moon size={20} className="text-slate-600 hover:text-accent" />}
             </button>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 };
 
