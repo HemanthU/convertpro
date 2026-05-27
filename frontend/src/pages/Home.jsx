@@ -54,17 +54,15 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="relative z-10 pt-28 pb-20 px-4 text-center animate-float">
-        <div className="flex justify-center mb-6">
-          <img src="/logo.png" alt="ConvertPro Logo" className="h-24 md:h-32 drop-shadow-xl" onError={(e) => { e.target.style.display = 'none'; }} />
-        </div>
+
         <h1 className="text-5xl md:text-7xl font-black font-heading text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
-          The only tool you need to <br className="hidden md:block" />
+          Every tool you could need to <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-blue-500 to-purple-500">
-            convert & optimize images
+            master your images
           </span>
         </h1>
         <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-10 font-medium">
-          100% Free online image tools. Convert between dozens of formats, compress file sizes, and upscale with professional-grade AI.
+          100% Free online image tools. Organize, convert, optimize, and secure your images with professional-grade AI and editing tools.
         </p>
       </section>
 

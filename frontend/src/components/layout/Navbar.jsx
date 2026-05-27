@@ -32,16 +32,10 @@ const Navbar = () => {
       <nav className="glass border border-slate-200/50 dark:border-slate-700/50 rounded-full px-6 py-3 pointer-events-auto shadow-xl dark:shadow-glow-purple transition-all duration-300 hover:scale-[1.02]">
         <div className="flex justify-between items-center space-x-12">
           <Link to="/" className="flex items-center space-x-3 group">
-            <img 
-              src="/logo.png" 
-              alt="ConvertPro Logo" 
-              className="h-8 md:h-10 transition-transform duration-300 group-hover:scale-105" 
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'block';
-              }} 
-            />
-            <span className="hidden font-heading font-black text-xl tracking-tight text-slate-900 dark:text-white transition-colors group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-accent group-hover:to-purple-500">
+            <div className="bg-gradient-to-br from-accent to-purple-500 text-white p-2 rounded-xl shadow-glow transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
+              <ImageIcon size={22} />
+            </div>
+            <span className="font-heading font-black text-xl tracking-tight text-slate-900 dark:text-white transition-colors group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-accent group-hover:to-purple-500">
               ConvertPro
             </span>
           </Link>
