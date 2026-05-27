@@ -5,14 +5,14 @@ const { PDFDocument } = require('pdf-lib');
 const fs = require('fs');
 const path = require('path');
 
-// 50MB limit, up to 100 files
+// 50MB limit, up to 20 files
 const upload = multer({ 
   dest: 'uploads/',
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
 // Image to PDF
-router.post('/images-to-pdf', upload.array('images', 100), async (req, res) => {
+router.post('/images-to-pdf', upload.array('images', 20), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
