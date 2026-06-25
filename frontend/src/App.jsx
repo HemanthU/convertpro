@@ -4,6 +4,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import ToolPage from './pages/ToolPage';
+import AudioConverter from './pages/AudioConverter';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/audio-to-mp3" element={<AudioConverter />} />
             <Route path="/tool/*" element={<ToolPage />} />
           </Routes>
         </main>

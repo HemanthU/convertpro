@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRightLeft, FileImage, Type, Crop, Maximize, RotateCw, FileText, Lock, Image, Layers, Palette, Grid, Zap, Shield, FileOutput, PenTool } from 'lucide-react';
+import { ArrowRightLeft, FileImage, Type, Crop, Maximize, RotateCw, FileText, Lock, Image, Layers, Palette, Grid, Zap, Shield, FileOutput, PenTool, Music } from 'lucide-react';
 import ToolCard from '../components/ui/ToolCard';
 
 const tools = [
@@ -18,6 +18,7 @@ const tools = [
   { id: 'to-svg', title: 'Raster to Vector', description: 'Trace pixel images into Vector Graphics (SVG).', icon: FileImage, path: '/tool/to-svg' },
   { id: 'crop', title: 'Crop Image', description: 'Crop images to exact pixels or specific ratios.', icon: Crop, path: '/tool/crop' },
   { id: 'rotate', title: 'Rotate & Flip', description: 'Rotate images or flip them horizontally/vertically.', icon: RotateCw, path: '/tool/rotate' },
+  { id: 'audio-to-mp3', title: 'Audio to MP3', description: 'Convert audio files to MP3 in your browser.', icon: Music, path: '/audio-to-mp3' },
 ];
 
 const Home = () => {
