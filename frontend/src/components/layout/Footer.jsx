@@ -9,10 +9,8 @@ const Footer = () => {
             <h3 className="font-bold text-slate-900 dark:text-white mb-4">Popular Tools</h3>
             <ul className="space-y-3 text-slate-500 dark:text-slate-400 text-sm">
               <li><Link to="/tool/compress" className="hover:text-accent">Compress Image</Link></li>
-              <li><Link to="#" className="hover:text-accent">PDF to Word</Link></li>
-              <li><Link to="#" className="hover:text-accent">Merge PDF</Link></li>
+              <li><Link to="/tool/merge-pdf" className="hover:text-accent">Merge PDF</Link></li>
               <li><Link to="/tool/image-to-pdf" className="hover:text-accent">Image to PDF</Link></li>
-              <li><Link to="/audio-to-mp3" className="hover:text-accent">MP4 to MP3</Link></li>
             </ul>
           </div>
           <div>
