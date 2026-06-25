@@ -40,6 +40,14 @@ const Navbar = () => {
             </span>
           </Link>
 
+          <div className="hidden md:flex items-center space-x-6">
+            <a href="/#tools" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-accent transition-colors">PDF Tools</a>
+            <a href="/#tools" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-accent transition-colors">Image Tools</a>
+            <a href="/#tools" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-accent transition-colors">Video</a>
+            <a href="/#tools" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-accent transition-colors">Audio</a>
+            <a href="/#tools" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-accent transition-colors">All Tools</a>
+          </div>
+
           <div className="flex items-center">
             <button
               onClick={toggleTheme}

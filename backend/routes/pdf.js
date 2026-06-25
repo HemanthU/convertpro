@@ -54,4 +54,36 @@ router.post('/images-to-pdf', upload.array('images', 20), async (req, res) => {
   }
 });
 
+// Merge PDFs
+router.post('/merge-pdf', upload.array('pdfs', 20), async (req, res) => {
+  try {
+    if (!req.files || req.files.length < 2) {
+      return res.status(400).json({ error: 'Please upload at least 2 PDF files to merge' });
+    }
+
+    const mergedPdf = await PDFDocument.create();
+
+    for (const file of req.files) {
+      if (file.mimetype !== 'application/pdf') continue;
+      
+      const pdfBytes = fs.readFileSync(file.path);
+      const pdf = await PDFDocument.load(pdfBytes);
+      const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+      
+      copiedPages.forEach((page) => {
+        mergedPdf.addPage(page);
+      });
+    }
+
+    const mergedPdfBytes = await mergedPdf.save();
+    const outputPath = path.join(__dirname, '../output', `merged_${Date.now()}.pdf`);
+    fs.writeFileSync(outputPath, mergedPdfBytes);
+
+    res.download(outputPath, 'merged.pdf');
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'PDF merge failed' });
+  }
+});
+
 module.exports = router;

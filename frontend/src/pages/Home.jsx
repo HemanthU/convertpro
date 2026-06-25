@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRightLeft, FileImage, Type, Crop, Maximize, RotateCw, FileText, Lock, Image, Layers, Palette, Grid, Zap, Shield, FileOutput, PenTool, Music } from 'lucide-react';
+import { ArrowRightLeft, FileImage, Type, Crop, Maximize, RotateCw, FileText, Lock, Image, Layers, Palette, Grid, Zap, Shield, FileOutput, PenTool, Music, Files } from 'lucide-react';
 import ToolCard from '../components/ui/ToolCard';
 
 const tools = [
@@ -15,6 +15,7 @@ const tools = [
   { id: 'convert-custom', title: 'Custom Converter', description: 'Choose from 10+ formats to convert into.', icon: ArrowRightLeft, path: '/tool/convert' },
   { id: 'image-to-base64', title: 'Image to Base64', description: 'Convert images to raw Base64 data strings.', icon: ArrowRightLeft, path: '/tool/image-to-base64' },
   { id: 'image-to-pdf', title: 'Image to PDF', description: 'Convert images into a single PDF document.', icon: FileText, path: '/tool/image-to-pdf' },
+  { id: 'merge-pdf', title: 'Merge PDF', description: 'Combine multiple PDF files into one continuous document.', icon: Files, path: '/tool/merge-pdf' },
   { id: 'to-svg', title: 'Raster to Vector', description: 'Trace pixel images into Vector Graphics (SVG).', icon: FileImage, path: '/tool/to-svg' },
   { id: 'crop', title: 'Crop Image', description: 'Crop images to exact pixels or specific ratios.', icon: Crop, path: '/tool/crop' },
   { id: 'rotate', title: 'Rotate & Flip', description: 'Rotate images or flip them horizontally/vertically.', icon: RotateCw, path: '/tool/rotate' },
