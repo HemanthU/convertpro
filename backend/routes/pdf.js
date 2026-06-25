@@ -55,7 +55,7 @@ router.post('/images-to-pdf', upload.array('images', 20), async (req, res) => {
 });
 
 // Merge PDFs
-router.post('/merge-pdf', upload.array('pdfs', 20), async (req, res) => {
+router.post('/merge-pdf', upload.array('images', 20), async (req, res) => {
   try {
     if (!req.files || req.files.length < 2) {
       return res.status(400).json({ error: 'Please upload at least 2 PDF files to merge' });

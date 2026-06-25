@@ -44,7 +44,7 @@ const Home = () => {
       </section>
 
       {/* Tools Grid */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
+      <section id="tools" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
         <div className="animate-in fade-in slide-in-from-bottom-12 duration-1000" style={{ animationFillMode: 'both' }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {tools.map((tool) => (

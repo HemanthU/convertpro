@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import UploadArea from '../components/ui/UploadArea';
@@ -10,6 +10,10 @@ const ToolPage = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const toolPath = location.pathname.split('/tool/')[1];
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState(null);
@@ -51,6 +55,7 @@ const ToolPage = () => {
       case 'crop': return 'Crop Image';
       case 'rotate': return 'Rotate & Flip';
       case 'image-to-pdf': return 'Image to PDF';
+      case 'merge-pdf': return 'Merge PDF';
       case 'upscale': return 'AI Upscaler';
       case 'to-svg': return 'Raster to Vector (SVG)';
       case 'ocr': return 'Image to Text (OCR)';
@@ -65,7 +70,7 @@ const ToolPage = () => {
     setDownloadUrl(null);
 
     const formData = new FormData();
-    const isMultiple = toolPath === 'image-to-pdf' || toolPath === 'convert';
+    const isMultiple = toolPath === 'image-to-pdf' || toolPath === 'convert' || toolPath === 'merge-pdf';
     
     // The /api/convert endpoint ALWAYS expects the key 'images', regardless of whether it's a multiple or single upload tool in the UI.
     const hitsConvertApi = toolPath === 'convert' || toolPath.startsWith('to-');
@@ -101,6 +106,8 @@ const ToolPage = () => {
       
       if (toolPath === 'image-to-pdf') {
         endpoint = `${API_URL}/pdf/images-to-pdf`;
+      } else if (toolPath === 'merge-pdf') {
+        endpoint = `${API_URL}/pdf/merge-pdf`;
       } else if (toolPath.startsWith('to-') && toolPath !== 'to-svg') {
         endpoint = `${API_URL}/convert`;
         formData.append('toFormat', toolPath.split('-')[1]);
@@ -131,7 +138,7 @@ const ToolPage = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       
       let ext = 'jpg';
-      if (toolPath === 'image-to-pdf') ext = 'pdf';
+      if (toolPath === 'image-to-pdf' || toolPath === 'merge-pdf') ext = 'pdf';
       else if (files.length > 1) ext = 'zip'; // Only fall back to ZIP for convert/others if multiple
       else if (toolPath === 'convert') ext = searchParams.get('to') || customConvertFormat || 'png';
       else if (toolPath === 'to-jpg') ext = 'jpg';
