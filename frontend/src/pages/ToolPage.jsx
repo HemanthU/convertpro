@@ -165,7 +165,7 @@ const ToolPage = () => {
 
     } catch (err) {
       console.error(err);
-      setError('An error occurred during processing. Please try again.');
+      setError(err.response?.data?.error || 'An error occurred during processing. Please try again.');
     } finally {
       setIsProcessing(false);
     }
