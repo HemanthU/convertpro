@@ -163,8 +163,8 @@ const ToolPage = () => {
       }, 100);
 
     } catch (err) {
-      console.error(err);
-      let errorMessage = 'An error occurred during processing. Please try again.';
+      console.error("Upload error details:", err);
+      let errorMessage = err.message || 'An error occurred during processing. Please try again.';
       if (err.response && err.response.data) {
         if (err.response.data instanceof Blob) {
           try {
@@ -175,6 +175,9 @@ const ToolPage = () => {
         } else if (err.response.data.error) {
           errorMessage = err.response.data.error;
         }
+      } else if (err.request) {
+        // The request was made but no response was received (Network error/CORS)
+        errorMessage = `Network Error: Could not reach the server at ${API_URL}. Is the backend running?`;
       }
       setError(errorMessage);
     } finally {
