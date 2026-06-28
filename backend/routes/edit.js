@@ -16,9 +16,10 @@ const processMultiple = async (req, res, actionName, transformFn) => {
   
   for (let i = 0; i < req.files.length; i++) {
     const file = req.files[i];
-    const buffer = await transformFn(file);
+    // transformFn now must return a sharp stream, not a Promise resolving to a buffer
+    const stream = transformFn(file); 
     const ext = path.extname(file.originalname) || '.jpg';
-    archive.append(buffer, { name: `${actionName}_${i + 1}${ext}` });
+    archive.append(stream, { name: `${actionName}_${i + 1}${ext}` });
   }
   archive.finalize();
 };
@@ -28,7 +29,7 @@ router.post('/resize', upload.array('images', 20), async (req, res) => {
     if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No file uploaded' });
     const { width, height, maintainAspectRatio } = req.body;
     
-    const transformFn = async (file) => {
+    const transformFn = (file) => {
       let transform = sharp(file.path);
       if (width || height) {
         transform = transform.resize({
@@ -37,12 +38,12 @@ router.post('/resize', upload.array('images', 20), async (req, res) => {
           fit: maintainAspectRatio === 'true' ? sharp.fit.inside : sharp.fit.fill
         });
       }
-      return transform.toBuffer();
+      return transform;
     };
 
     if (req.files.length === 1) {
       const outputPath = path.join(__dirname, '../output', `resized_${req.files[0].filename}.jpg`);
-      await fs.promises.writeFile(outputPath, await transformFn(req.files[0]));
+      await transformFn(req.files[0]).toFile(outputPath);
       return res.download(outputPath, 'resized_image.jpg');
     } else {
       await processMultiple(req, res, 'resized', transformFn);
@@ -58,6 +59,7 @@ router.post('/crop', upload.array('images', 20), async (req, res) => {
     if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No file uploaded' });
     const { left, top, width, height } = req.body;
     
+    // We must use a Promise for metadata, but then return a stream
     const transformFn = async (file) => {
       const image = sharp(file.path);
       const metadata = await image.metadata();
@@ -65,15 +67,25 @@ router.post('/crop', upload.array('images', 20), async (req, res) => {
       const safeTop = Math.max(0, Math.min(parseInt(top) || 0, metadata.height - 1));
       const safeWidth = Math.max(1, Math.min(parseInt(width) || metadata.width, metadata.width - safeLeft));
       const safeHeight = Math.max(1, Math.min(parseInt(height) || metadata.height, metadata.height - safeTop));
-      return image.extract({ left: safeLeft, top: safeTop, width: safeWidth, height: safeHeight }).toBuffer();
+      return image.extract({ left: safeLeft, top: safeTop, width: safeWidth, height: safeHeight });
     };
 
     if (req.files.length === 1) {
       const outputPath = path.join(__dirname, '../output', `cropped_${req.files[0].filename}.jpg`);
-      await fs.promises.writeFile(outputPath, await transformFn(req.files[0]));
+      const stream = await transformFn(req.files[0]);
+      await stream.toFile(outputPath);
       return res.download(outputPath, 'cropped_image.jpg');
     } else {
-      await processMultiple(req, res, 'cropped', transformFn);
+      // Re-implement processMultiple locally here to await transformFn
+      res.attachment(`cropped_${Date.now()}.zip`);
+      const archive = archiver('zip', { zlib: { level: 9 } });
+      archive.pipe(res);
+      for (let i = 0; i < req.files.length; i++) {
+        const stream = await transformFn(req.files[i]);
+        const ext = path.extname(req.files[i].originalname) || '.jpg';
+        archive.append(stream, { name: `cropped_${i + 1}${ext}` });
+      }
+      archive.finalize();
     }
   } catch (error) {
     console.error("Crop error:", error);
@@ -86,17 +98,17 @@ router.post('/rotate-flip', upload.array('images', 20), async (req, res) => {
     if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No file uploaded' });
     const { angle, flipH, flipV } = req.body;
     
-    const transformFn = async (file) => {
+    const transformFn = (file) => {
       let transform = sharp(file.path);
       if (angle) transform = transform.rotate(parseInt(angle));
       if (flipH === 'true') transform = transform.flop();
       if (flipV === 'true') transform = transform.flip();
-      return transform.toBuffer();
+      return transform;
     };
 
     if (req.files.length === 1) {
       const outputPath = path.join(__dirname, '../output', `modified_${req.files[0].filename}.jpg`);
-      await fs.promises.writeFile(outputPath, await transformFn(req.files[0]));
+      await transformFn(req.files[0]).toFile(outputPath);
       return res.download(outputPath, 'modified_image.jpg');
     } else {
       await processMultiple(req, res, 'modified', transformFn);

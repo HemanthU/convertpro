@@ -165,7 +165,19 @@ const ToolPage = () => {
 
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || 'An error occurred during processing. Please try again.');
+      let errorMessage = 'An error occurred during processing. Please try again.';
+      if (err.response && err.response.data) {
+        if (err.response.data instanceof Blob) {
+          try {
+            const text = await err.response.data.text();
+            const json = JSON.parse(text);
+            if (json.error) errorMessage = json.error;
+          } catch (e) {}
+        } else if (err.response.data.error) {
+          errorMessage = err.response.data.error;
+        }
+      }
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
     }

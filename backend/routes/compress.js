@@ -31,14 +31,13 @@ router.post('/', upload.array('images', 20), async (req, res) => {
       
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
-        const buffer = await sharp(file.path)
+        const stream = sharp(file.path)
           .jpeg({ quality: parseInt(quality), force: false })
           .png({ quality: parseInt(quality), force: false })
-          .webp({ quality: parseInt(quality), force: false })
-          .toBuffer();
+          .webp({ quality: parseInt(quality), force: false });
         
         const ext = path.extname(file.originalname) || '.jpg';
-        archive.append(buffer, { name: `compressed_${i + 1}${ext}` });
+        archive.append(stream, { name: `compressed_${i + 1}${ext}` });
       }
       archive.finalize();
     }

@@ -34,27 +34,24 @@ router.post('/', upload.array('images', 20), async (req, res) => {
       return res.download(outputPath, `converted.${toFormat}`);
     } else {
       // Multiple files - return ZIP
-      const zipPath = path.join(__dirname, '../output', `${Date.now()}.zip`);
-      const output = fs.createWriteStream(zipPath);
+      res.attachment(`converted_${Date.now()}.zip`);
       const archive = archiver('zip', { zlib: { level: 9 } });
-      
-      output.on('close', () => {
-        res.download(zipPath, 'converted_images.zip');
-      });
-      
-      archive.pipe(output);
+      archive.pipe(res);
       
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
-        let inputBuffer = fs.readFileSync(file.path);
+        let stream;
         
         if (file.originalname.toLowerCase().endsWith('.heic')) {
+          const inputBuffer = fs.readFileSync(file.path);
           const heicConvert = require('heic-convert');
-          inputBuffer = await heicConvert({ buffer: inputBuffer, format: 'JPEG', quality: 1 });
+          const jpegBuffer = await heicConvert({ buffer: inputBuffer, format: 'JPEG', quality: 1 });
+          stream = sharp(jpegBuffer).toFormat(toFormat);
+        } else {
+          stream = sharp(file.path).toFormat(toFormat);
         }
         
-        const processedBuffer = await sharp(inputBuffer).toFormat(toFormat).toBuffer();
-        archive.append(processedBuffer, { name: `image_${i + 1}.${toFormat}` });
+        archive.append(stream, { name: `image_${i + 1}.${toFormat}` });
       }
       
       archive.finalize();

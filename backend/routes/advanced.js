@@ -36,7 +36,7 @@ router.post('/strip-exif', upload.single('image'), async (req, res) => {
   }
 });
 
-// Helper to handle multiple files zip response
+// Helper to handle multiple files zip response (now expects stream)
 const processMultiple = async (req, res, actionName, transformFn, ext = 'png') => {
   res.attachment(`${actionName}_${Date.now()}.zip`);
   const archive = archiver('zip', { zlib: { level: 9 } });
@@ -44,35 +44,34 @@ const processMultiple = async (req, res, actionName, transformFn, ext = 'png') =
   
   for (let i = 0; i < req.files.length; i++) {
     const file = req.files[i];
-    const buffer = await transformFn(file);
-    archive.append(buffer, { name: `${actionName}_${i + 1}.${ext}` });
+    // transformFn is async because of metadata, but returns a stream
+    const stream = await transformFn(file);
+    archive.append(stream, { name: `${actionName}_${i + 1}.${ext}` });
   }
   archive.finalize();
 };
 
-// 2. Image Upscaler
 router.post('/upscale', upload.array('images', 20), async (req, res) => {
   try {
-    if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No files uploaded' });
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No file uploaded' });
     const { factor = 2 } = req.body;
     
     const transformFn = async (file) => {
-      const metadata = await sharp(file.path).metadata();
-      return sharp(file.path)
-        .resize({
-          width: Math.round(metadata.width * parseInt(factor)),
-          kernel: sharp.kernel.lanczos3
-        })
-        .png()
-        .toBuffer();
+      const image = sharp(file.path);
+      const metadata = await image.metadata();
+      return image.resize({
+        width: Math.round(metadata.width * parseFloat(factor)),
+        height: Math.round(metadata.height * parseFloat(factor))
+      });
     };
 
     if (req.files.length === 1) {
       const outputPath = path.join(__dirname, '../output', `upscaled_${req.files[0].filename}.png`);
-      await fs.promises.writeFile(outputPath, await transformFn(req.files[0]));
-      return res.download(outputPath, `upscaled_${factor}x.png`);
+      const stream = await transformFn(req.files[0]);
+      await stream.toFile(outputPath);
+      return res.download(outputPath, 'upscaled_image.png');
     } else {
-      await processMultiple(req, res, `upscaled_${factor}x`, transformFn, 'png');
+      await processMultiple(req, res, 'upscaled', transformFn, 'png');
     }
   } catch (error) {
     res.status(500).json({ error: 'Upscale failed' });
