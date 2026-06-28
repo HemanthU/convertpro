@@ -125,8 +125,7 @@ const ToolPage = () => {
       const isJson = jsonEndpoints.includes(toolPath);
 
       const response = await axios.post(endpoint, formData, {
-        responseType: isJson ? 'json' : 'blob',
-        headers: { 'Content-Type': 'multipart/form-data' },
+        responseType: isJson ? 'json' : 'blob'
       });
 
       if (isJson) {
