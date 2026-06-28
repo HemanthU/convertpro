@@ -174,7 +174,7 @@ const ToolPage = () => {
               if (json.error) errorMessage = json.error;
             } catch (jsonErr) {
               // If it's not JSON, display the raw text (could be HTML from Render/Express)
-              errorMessage = `Server Error (500): ${text.substring(0, 100)}`;
+              errorMessage = `[URL: ${endpoint}] Server Error (500): ${text.substring(0, 100)}`;
             }
           } catch (e) {}
         } else if (err.response.data.error) {
