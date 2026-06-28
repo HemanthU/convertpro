@@ -48,20 +48,25 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  
-  // Anti-Sleep Self-Pinging Mechanism for Render
-  // Pings its own /ping endpoint every 14 minutes (840000 ms) to prevent sleeping
-  const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
-  setInterval(() => {
-    const http = RENDER_EXTERNAL_URL.startsWith('https') ? require('https') : require('http');
-    http.get(`${RENDER_EXTERNAL_URL}/ping`, (resp) => {
-      if (resp.statusCode === 200) {
-        console.log('Self-ping successful: Server kept awake.');
-      }
-    }).on("error", (err) => {
-      console.log("Self-ping failed: " + err.message);
-    });
-  }, 14 * 60 * 1000); // 14 minutes
-});
+if (process.env.NODE_ENV !== 'production' || process.env.RENDER) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    
+    // Anti-Sleep Self-Pinging Mechanism for Render
+    // Pings its own /ping endpoint every 14 minutes (840000 ms) to prevent sleeping
+    const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+    setInterval(() => {
+      const http = RENDER_EXTERNAL_URL.startsWith('https') ? require('https') : require('http');
+      http.get(`${RENDER_EXTERNAL_URL}/ping`, (resp) => {
+        if (resp.statusCode === 200) {
+          console.log('Self-ping successful: Server kept awake.');
+        }
+      }).on("error", (err) => {
+        console.log("Self-ping failed: " + err.message);
+      });
+    }, 14 * 60 * 1000); // 14 minutes
+  });
+}
+
+// Required for Vercel Serverless deployment
+module.exports = app;
