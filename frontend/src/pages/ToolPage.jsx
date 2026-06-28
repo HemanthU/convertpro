@@ -169,8 +169,13 @@ const ToolPage = () => {
         if (err.response.data instanceof Blob) {
           try {
             const text = await err.response.data.text();
-            const json = JSON.parse(text);
-            if (json.error) errorMessage = json.error;
+            try {
+              const json = JSON.parse(text);
+              if (json.error) errorMessage = json.error;
+            } catch (jsonErr) {
+              // If it's not JSON, display the raw text (could be HTML from Render/Express)
+              errorMessage = `Server Error (500): ${text.substring(0, 100)}`;
+            }
           } catch (e) {}
         } else if (err.response.data.error) {
           errorMessage = err.response.data.error;
