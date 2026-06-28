@@ -36,39 +36,76 @@ router.post('/strip-exif', upload.single('image'), async (req, res) => {
   }
 });
 
+// Helper to handle multiple files zip response
+const processMultiple = async (req, res, actionName, transformFn, ext = 'png') => {
+  const zipPath = path.join(__dirname, '../output', `${actionName}_${Date.now()}.zip`);
+  const output = fs.createWriteStream(zipPath);
+  const archive = archiver('zip', { zlib: { level: 9 } });
+  
+  output.on('close', () => {
+    res.download(zipPath, `${actionName}_files.zip`);
+  });
+  archive.pipe(output);
+  
+  for (let i = 0; i < req.files.length; i++) {
+    const file = req.files[i];
+    const buffer = await transformFn(file);
+    archive.append(buffer, { name: `${actionName}_${i + 1}.${ext}` });
+  }
+  archive.finalize();
+};
+
 // 2. Image Upscaler
-router.post('/upscale', upload.single('image'), async (req, res) => {
+router.post('/upscale', upload.array('images', 20), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No files uploaded' });
     const { factor = 2 } = req.body;
-    const metadata = await sharp(req.file.path).metadata();
-    const outputPath = path.join(__dirname, '../output', `upscaled_${req.file.filename}.png`);
     
-    await sharp(req.file.path)
-      .resize({
-        width: Math.round(metadata.width * parseInt(factor)),
-        kernel: sharp.kernel.lanczos3
-      })
-      .png()
-      .toFile(outputPath);
-      
-    res.download(outputPath, `upscaled_${factor}x.png`);
+    const transformFn = async (file) => {
+      const metadata = await sharp(file.path).metadata();
+      return sharp(file.path)
+        .resize({
+          width: Math.round(metadata.width * parseInt(factor)),
+          kernel: sharp.kernel.lanczos3
+        })
+        .png()
+        .toBuffer();
+    };
+
+    if (req.files.length === 1) {
+      const outputPath = path.join(__dirname, '../output', `upscaled_${req.files[0].filename}.png`);
+      await fs.promises.writeFile(outputPath, await transformFn(req.files[0]));
+      return res.download(outputPath, `upscaled_${factor}x.png`);
+    } else {
+      await processMultiple(req, res, `upscaled_${factor}x`, transformFn, 'png');
+    }
   } catch (error) {
     res.status(500).json({ error: 'Upscale failed' });
   }
 });
 
 // 3. Raster to Vector (SVG)
-router.post('/to-svg', upload.single('image'), async (req, res) => {
+router.post('/to-svg', upload.array('images', 20), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const outputPath = path.join(__dirname, '../output', `vector_${req.file.filename}.svg`);
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'No files uploaded' });
     
-    potrace.trace(req.file.path, function(err, svg) {
-      if (err) return res.status(500).json({ error: 'Trace failed' });
-      fs.writeFileSync(outputPath, svg);
-      res.download(outputPath, 'vectorized.svg');
-    });
+    const transformFn = (file) => {
+      return new Promise((resolve, reject) => {
+        potrace.trace(file.path, (err, svg) => {
+          if (err) reject(err);
+          else resolve(Buffer.from(svg));
+        });
+      });
+    };
+
+    if (req.files.length === 1) {
+      const outputPath = path.join(__dirname, '../output', `vector_${req.files[0].filename}.svg`);
+      const svgBuffer = await transformFn(req.files[0]);
+      await fs.promises.writeFile(outputPath, svgBuffer);
+      return res.download(outputPath, 'vectorized.svg');
+    } else {
+      await processMultiple(req, res, 'vectorized', transformFn, 'svg');
+    }
   } catch (error) {
     res.status(500).json({ error: 'SVG conversion failed' });
   }

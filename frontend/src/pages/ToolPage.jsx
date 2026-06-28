@@ -70,7 +70,8 @@ const ToolPage = () => {
     setDownloadUrl(null);
 
     const formData = new FormData();
-    const isMultiple = toolPath === 'image-to-pdf' || toolPath === 'convert' || toolPath === 'merge-pdf';
+    const singleFileTools = ['ocr', 'image-to-base64', 'favicon', 'exif', 'strip-exif'];
+    const isMultiple = !singleFileTools.includes(toolPath);
     
     // The /api/convert endpoint ALWAYS expects the key 'images', regardless of whether it's a multiple or single upload tool in the UI.
     const hitsConvertApi = toolPath === 'convert' || toolPath.startsWith('to-');
@@ -312,7 +313,7 @@ const ToolPage = () => {
       {!downloadUrl && !hasJsonResult ? (
         <UploadArea 
           onUpload={handleUpload} 
-          multiple={toolPath === 'convert' || toolPath === 'image-to-pdf'}
+          multiple={!['ocr', 'image-to-base64', 'favicon', 'exif', 'strip-exif'].includes(toolPath)}
           isProcessing={isProcessing}
           optionsUI={renderOptions()}
         />
