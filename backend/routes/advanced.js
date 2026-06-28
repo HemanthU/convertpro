@@ -46,8 +46,10 @@ const processMultiple = async (req, res, actionName, transformFn, ext = 'png') =
     const file = req.files[i];
     // transformFn is async because of metadata, but returns a stream
     const stream = await transformFn(file);
+    stream.on('error', err => console.error("Sharp stream error:", err));
     archive.append(stream, { name: `${actionName}_${i + 1}.${ext}` });
   }
+  archive.on('error', err => console.error("Archiver error:", err));
   archive.finalize();
 };
 

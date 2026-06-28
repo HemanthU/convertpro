@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 require('dotenv').config();
 
 const app = express();
@@ -37,6 +38,15 @@ app.get('/', (req, res) => {
 
 // Clean up utility task every 15 minutes (or as needed)
 require('./utils/cleanup')();
+
+// Global Error Handler (Catches Multer errors & others)
+app.use((err, req, res, next) => {
+  console.error("Global Error Handler:", err);
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ error: `Upload error: ${err.message}` });
+  }
+  res.status(500).json({ error: err.message || 'Internal Server Error' });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

@@ -51,9 +51,11 @@ router.post('/', upload.array('images', 20), async (req, res) => {
           stream = sharp(file.path).toFormat(toFormat);
         }
         
+        stream.on('error', err => console.error("Sharp stream error:", err));
         archive.append(stream, { name: `image_${i + 1}.${toFormat}` });
       }
       
+      archive.on('error', err => console.error("Archiver error:", err));
       archive.finalize();
     }
   } catch (error) {

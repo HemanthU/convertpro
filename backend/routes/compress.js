@@ -31,14 +31,26 @@ router.post('/', upload.array('images', 20), async (req, res) => {
       
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
-        const stream = sharp(file.path)
-          .jpeg({ quality: parseInt(quality), force: false })
-          .png({ quality: parseInt(quality), force: false })
-          .webp({ quality: parseInt(quality), force: false });
+        const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
         
-        const ext = path.extname(file.originalname) || '.jpg';
+        let stream = sharp(file.path);
+        
+        if (ext === '.png') {
+          stream = stream.png({ quality: parseInt(quality), force: false });
+        } else if (ext === '.webp') {
+          stream = stream.webp({ quality: parseInt(quality), force: false });
+        } else {
+          stream = stream.jpeg({ quality: parseInt(quality), force: false });
+        }
+        
+        // Prevent unhandled stream errors from crashing Node.js
+        stream.on('error', err => console.error("Sharp stream error:", err));
+
         archive.append(stream, { name: `compressed_${i + 1}${ext}` });
       }
+      
+      // Prevent unhandled archiver errors
+      archive.on('error', err => console.error("Archiver error:", err));
       archive.finalize();
     }
   } catch (error) {

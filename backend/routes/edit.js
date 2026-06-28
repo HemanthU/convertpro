@@ -18,9 +18,11 @@ const processMultiple = async (req, res, actionName, transformFn) => {
     const file = req.files[i];
     // transformFn now must return a sharp stream, not a Promise resolving to a buffer
     const stream = transformFn(file); 
+    stream.on('error', err => console.error("Sharp stream error:", err));
     const ext = path.extname(file.originalname) || '.jpg';
     archive.append(stream, { name: `${actionName}_${i + 1}${ext}` });
   }
+  archive.on('error', err => console.error("Archiver error:", err));
   archive.finalize();
 };
 
