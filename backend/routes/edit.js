@@ -10,14 +10,9 @@ const upload = multer({ dest: 'uploads/' });
 
 // Helper to handle multiple files zip response
 const processMultiple = async (req, res, actionName, transformFn) => {
-  const zipPath = path.join(__dirname, '../output', `${actionName}_${Date.now()}.zip`);
-  const output = fs.createWriteStream(zipPath);
+  res.attachment(`${actionName}_${Date.now()}.zip`);
   const archive = archiver('zip', { zlib: { level: 9 } });
-  
-  output.on('close', () => {
-    res.download(zipPath, `${actionName}_images.zip`);
-  });
-  archive.pipe(output);
+  archive.pipe(res);
   
   for (let i = 0; i < req.files.length; i++) {
     const file = req.files[i];

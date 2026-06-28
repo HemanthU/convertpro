@@ -25,14 +25,9 @@ router.post('/', upload.array('images', 20), async (req, res) => {
         .toFile(outputPath);
       return res.download(outputPath, 'compressed_image.jpg');
     } else {
-      const zipPath = path.join(__dirname, '../output', `compressed_${Date.now()}.zip`);
-      const output = fs.createWriteStream(zipPath);
+      res.attachment(`compressed_${Date.now()}.zip`);
       const archive = archiver('zip', { zlib: { level: 9 } });
-      
-      output.on('close', () => {
-        res.download(zipPath, 'compressed_images.zip');
-      });
-      archive.pipe(output);
+      archive.pipe(res);
       
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
@@ -42,7 +37,6 @@ router.post('/', upload.array('images', 20), async (req, res) => {
           .webp({ quality: parseInt(quality), force: false })
           .toBuffer();
         
-        // guess extension from mimetype or originalname
         const ext = path.extname(file.originalname) || '.jpg';
         archive.append(buffer, { name: `compressed_${i + 1}${ext}` });
       }
