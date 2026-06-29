@@ -32,7 +32,7 @@ router.post('/resize', upload.array('images', 20), async (req, res) => {
     const { width, height, maintainAspectRatio } = req.body;
     
     const transformFn = (file) => {
-      let transform = sharp(file.path);
+      let transform = sharp(file.path, { animated: true });
       if (width || height) {
         transform = transform.resize({
           width: width ? parseInt(width) : null,
@@ -44,9 +44,12 @@ router.post('/resize', upload.array('images', 20), async (req, res) => {
     };
 
     if (req.files.length === 1) {
-      const outputPath = path.join(__dirname, '../output', `resized_${req.files[0].filename}.jpg`);
-      await transformFn(req.files[0]).toFile(outputPath);
-      return res.download(outputPath, 'resized_image.jpg');
+      const ext = path.extname(req.files[0].originalname).toLowerCase() || '.jpg';
+      const outputPath = path.join(__dirname, '../output', `resized_${req.files[0].filename}${ext}`);
+      let stream = await transformFn(req.files[0]);
+      if (ext === '.gif') stream = stream.gif();
+      await stream.toFile(outputPath);
+      return res.download(outputPath, `resized_image${ext}`);
     } else {
       await processMultiple(req, res, 'resized', transformFn);
     }
@@ -63,7 +66,7 @@ router.post('/crop', upload.array('images', 20), async (req, res) => {
     
     // We must use a Promise for metadata, but then return a stream
     const transformFn = async (file) => {
-      const image = sharp(file.path);
+      const image = sharp(file.path, { animated: true });
       const metadata = await image.metadata();
       const safeLeft = Math.max(0, Math.min(parseInt(left) || 0, metadata.width - 1));
       const safeTop = Math.max(0, Math.min(parseInt(top) || 0, metadata.height - 1));
@@ -73,10 +76,12 @@ router.post('/crop', upload.array('images', 20), async (req, res) => {
     };
 
     if (req.files.length === 1) {
-      const outputPath = path.join(__dirname, '../output', `cropped_${req.files[0].filename}.jpg`);
-      const stream = await transformFn(req.files[0]);
+      const ext = path.extname(req.files[0].originalname).toLowerCase() || '.jpg';
+      const outputPath = path.join(__dirname, '../output', `cropped_${req.files[0].filename}${ext}`);
+      let stream = await transformFn(req.files[0]);
+      if (ext === '.gif') stream = stream.gif();
       await stream.toFile(outputPath);
-      return res.download(outputPath, 'cropped_image.jpg');
+      return res.download(outputPath, `cropped_image${ext}`);
     } else {
       // Re-implement processMultiple locally here to await transformFn
       res.attachment(`cropped_${Date.now()}.zip`);
@@ -101,7 +106,7 @@ router.post('/rotate-flip', upload.array('images', 20), async (req, res) => {
     const { angle, flipH, flipV } = req.body;
     
     const transformFn = (file) => {
-      let transform = sharp(file.path);
+      let transform = sharp(file.path, { animated: true });
       if (angle) transform = transform.rotate(parseInt(angle));
       if (flipH === 'true') transform = transform.flop();
       if (flipV === 'true') transform = transform.flip();
@@ -109,9 +114,12 @@ router.post('/rotate-flip', upload.array('images', 20), async (req, res) => {
     };
 
     if (req.files.length === 1) {
-      const outputPath = path.join(__dirname, '../output', `modified_${req.files[0].filename}.jpg`);
-      await transformFn(req.files[0]).toFile(outputPath);
-      return res.download(outputPath, 'modified_image.jpg');
+      const ext = path.extname(req.files[0].originalname).toLowerCase() || '.jpg';
+      const outputPath = path.join(__dirname, '../output', `modified_${req.files[0].filename}${ext}`);
+      let stream = await transformFn(req.files[0]);
+      if (ext === '.gif') stream = stream.gif();
+      await stream.toFile(outputPath);
+      return res.download(outputPath, `modified_image${ext}`);
     } else {
       await processMultiple(req, res, 'modified', transformFn);
     }

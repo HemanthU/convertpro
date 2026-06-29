@@ -17,13 +17,15 @@ router.post('/', upload.array('images', 20), async (req, res) => {
     
     if (req.files.length === 1) {
       const file = req.files[0];
-      const outputPath = path.join(__dirname, '../output', `compressed_${file.filename}.jpg`);
-      await sharp(file.path)
+      const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+      const outputPath = path.join(__dirname, '../output', `compressed_${file.filename}${ext}`);
+      await sharp(file.path, { animated: true })
         .jpeg({ quality: parseInt(quality), force: false })
         .png({ quality: parseInt(quality), force: false })
         .webp({ quality: parseInt(quality), force: false })
+        .gif({ force: false })
         .toFile(outputPath);
-      return res.download(outputPath, 'compressed_image.jpg');
+      return res.download(outputPath, `compressed_image${ext}`);
     } else {
       res.attachment(`compressed_${Date.now()}.zip`);
       const archive = archiver('zip', { store: true });
@@ -33,12 +35,14 @@ router.post('/', upload.array('images', 20), async (req, res) => {
         const file = req.files[i];
         const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
         
-        let stream = sharp(file.path);
+        let stream = sharp(file.path, { animated: true });
         
         if (ext === '.png') {
           stream = stream.png({ quality: parseInt(quality), force: false });
         } else if (ext === '.webp') {
           stream = stream.webp({ quality: parseInt(quality), force: false });
+        } else if (ext === '.gif') {
+          stream = stream.gif({ force: false });
         } else {
           stream = stream.jpeg({ quality: parseInt(quality), force: false });
         }

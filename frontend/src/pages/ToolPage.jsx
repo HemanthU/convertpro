@@ -137,9 +137,11 @@ const ToolPage = () => {
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       
-      let ext = 'jpg';
+      const originalExt = files[0] ? files[0].name.split('.').pop().toLowerCase() : 'jpg';
+      let ext = originalExt;
+      
       if (toolPath === 'image-to-pdf' || toolPath === 'merge-pdf') ext = 'pdf';
-      else if (files.length > 1) ext = 'zip'; // Only fall back to ZIP for convert/others if multiple
+      else if (files.length > 1) ext = 'zip'; 
       else if (toolPath === 'convert') ext = searchParams.get('to') || customConvertFormat || 'png';
       else if (toolPath === 'to-jpg') ext = 'jpg';
       else if (toolPath === 'to-png') ext = 'png';
