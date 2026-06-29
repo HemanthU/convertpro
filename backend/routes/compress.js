@@ -26,7 +26,7 @@ router.post('/', upload.array('images', 20), async (req, res) => {
       return res.download(outputPath, 'compressed_image.jpg');
     } else {
       res.attachment(`compressed_${Date.now()}.zip`);
-      const archive = archiver('zip', { zlib: { level: 9 } });
+      const archive = archiver('zip', { store: true });
       archive.pipe(res);
       
       for (let i = 0; i < req.files.length; i++) {

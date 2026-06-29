@@ -35,7 +35,7 @@ router.post('/', upload.array('images', 20), async (req, res) => {
     } else {
       // Multiple files - return ZIP
       res.attachment(`converted_${Date.now()}.zip`);
-      const archive = archiver('zip', { zlib: { level: 9 } });
+      const archive = archiver('zip', { store: true });
       archive.pipe(res);
       
       for (let i = 0; i < req.files.length; i++) {

@@ -39,7 +39,7 @@ router.post('/strip-exif', upload.single('image'), async (req, res) => {
 // Helper to handle multiple files zip response (now expects stream)
 const processMultiple = async (req, res, actionName, transformFn, ext = 'png') => {
   res.attachment(`${actionName}_${Date.now()}.zip`);
-  const archive = archiver('zip', { zlib: { level: 9 } });
+  const archive = archiver('zip', { store: true });
   archive.pipe(res);
   
   for (let i = 0; i < req.files.length; i++) {
@@ -115,7 +115,7 @@ router.post('/favicon', upload.single('image'), async (req, res) => {
     const sizes = [16, 32, 192, 512];
     const zipPath = path.join(__dirname, '../output', `favicon_${Date.now()}.zip`);
     const output = fs.createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiver('zip', { store: true });
     
     output.on('close', () => {
       res.download(zipPath, 'favicons.zip');

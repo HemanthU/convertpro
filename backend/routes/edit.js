@@ -11,7 +11,7 @@ const upload = multer({ dest: 'uploads/' });
 // Helper to handle multiple files zip response
 const processMultiple = async (req, res, actionName, transformFn) => {
   res.attachment(`${actionName}_${Date.now()}.zip`);
-  const archive = archiver('zip', { zlib: { level: 9 } });
+  const archive = archiver('zip', { store: true });
   archive.pipe(res);
   
   for (let i = 0; i < req.files.length; i++) {
@@ -80,7 +80,7 @@ router.post('/crop', upload.array('images', 20), async (req, res) => {
     } else {
       // Re-implement processMultiple locally here to await transformFn
       res.attachment(`cropped_${Date.now()}.zip`);
-      const archive = archiver('zip', { zlib: { level: 9 } });
+      const archive = archiver('zip', { store: true });
       archive.pipe(res);
       for (let i = 0; i < req.files.length; i++) {
         const stream = await transformFn(req.files[i]);
